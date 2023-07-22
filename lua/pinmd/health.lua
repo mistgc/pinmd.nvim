@@ -1,3 +1,5 @@
+-- code from https://github.com/ekickx/clipboard-image.nvim/blob/main/lua/clipboard-image/health.lua
+
 local utils = require("pinmd.utils")
 local health = require("health")
 
