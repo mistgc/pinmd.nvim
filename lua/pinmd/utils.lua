@@ -15,6 +15,15 @@ function M.get_os()
     return this_os
 end
 
+function M.get_separator()
+    local this_os = M.get_os()
+    if this_os == "Windows" then
+        return "\\"
+    else
+        return "/"
+    end
+end
+
 -- https://github.com/ekickx/clipboard-image.nvim/blob/main/lua/clipboard-image/utils.lua
 ---@return string
 function M.get_clip_cmd()
@@ -44,19 +53,74 @@ end
 ---@param cmd string
 ---@return table
 function M.get_clip_ctnt(cmd)
-  local res = {}
-  local output = io.popen(cmd)
+    local res = {}
+    local output = io.popen(cmd)
 
-  if output == nil then
-    M.error("Get content of clipboard failed.")
+    if output == nil then
+        M.error("Get content of clipboard failed.")
+        return res
+    end
+
+    for line in output:lines() do
+        table.insert(res, line)
+    end
+
     return res
-  end
+end
 
-  for line in output:lines() do
-      table.insert(res, line)
-  end
+-- https://github.com/ekickx/clipboard-image.nvim/blob/main/lua/clipboard-image/utils.lua
+---Check if clipboard contain image data
+---See also: [Data URI scheme](https://en.wikipedia.org/wiki/Data_URI_scheme)
+---@param content any #clipboard content
+function M.is_clipboard_img(content)
+    local this_os = M.get_os()
+    if this_os == "Linux" and vim.tbl_contains(content, "image/png") then
+        return true
+    elseif this_os == "Darwin" and string.sub(content[1], 1, 9) == "iVBORw0KG" then -- Magic png number in base64
+        return true
+    elseif this_os == "Windows" or this_os == "Wsl" and content ~= nil then
+        return true
+    end
+    return false
+end
 
-  return res
+function M.maybe_create_dir(path)
+    if vim.fn.isdirectory(path) == 0 then
+        vim.fn.mkdir(path, "p")
+    end
+end
+
+-- https://github.com/ekickx/clipboard-image.nvim/blob/main/lua/clipboard-image/utils.lua
+function M.insert_txt(affix, txt)
+    local curpos = vim.fn.getcurpos()
+    local line_num, line_col = curpos[2], curpos[3]
+    local indent = string.rep(" ", line_col)
+    local txt_topaste = string.format(affix, txt)
+
+    ---Convert txt_topaste to lines table so it can handle multiline string
+    local lines = {}
+    for line in txt_topaste:gmatch("[^\r\n]+") do
+        table.insert(lines, line)
+    end
+
+    for line_index, line in pairs(lines) do
+        local current_line_num = line_num + line_index - 1
+        local current_line = vim.fn.getline(current_line_num)
+        ---Since there's no collumn 0, remove extra space when current line is blank
+        if current_line == "" then
+            indent = indent:sub(1, -2)
+        end
+
+        local pre_txt = current_line:sub(1, line_col)
+        local post_txt = current_line:sub(line_col + 1, -1)
+        local inserted_txt = pre_txt .. line .. post_txt
+
+        vim.fn.setline(current_line_num, inserted_txt)
+        ---Create new line so inserted_txt doesn't replace next lines
+        if line_index ~= #lines then
+            vim.fn.append(current_line_num, indent)
+        end
+    end
 end
 
 ---@param msg string
