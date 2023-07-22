@@ -11,16 +11,16 @@ local function paste_img_to(dist)
 end
 
 function M.paste_img()
-    local content = utils.get_clip_ctnt(check_cmd)
-    if utils.is_clipboard_img(content) ~= true then
-        utils.error("There is no image data in clipboard")
-    else
-        ---@type Image
-        local img = Image:new() -- create an image object
-        utils.maybe_create_dir(img.dir_path)
-        paste_img_to(img.path)
-        utils.insert_txt(img.affix, img.link_txt)
-    end
+  local content = utils.get_clip_ctnt(check_cmd)
+  if utils.is_clipboard_img(content) ~= true then
+    utils.error("There is no image data in clipboard")
+  else
+    ---@type Image
+    local img = Image:new() -- create an image object
+    utils.maybe_create_dir(img.dir_path)
+    paste_img_to(img.path)
+    utils.insert_txt(img.affix, img.link_txt)
+  end
 end
 
 return M

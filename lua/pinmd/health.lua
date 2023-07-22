@@ -8,7 +8,7 @@ local M = {}
 local get_platform = function()
   local this_os = utils.get_os()
   if this_os == "Linux" then
-    local display_server = os.getenv "XDG_SESSION_TYPE"
+    local display_server = os.getenv("XDG_SESSION_TYPE")
     return display_server
   end
   return this_os:lower()
@@ -42,7 +42,7 @@ end
 M.check = function()
   local is_dep_exist, report_msg = M.check_current_dep()
 
-  health.report_start "Checking dependencies"
+  health.report_start("Checking dependencies")
   if is_dep_exist then
     health.report_ok(report_msg)
   else
