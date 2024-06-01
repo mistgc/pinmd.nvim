@@ -6,8 +6,8 @@ local check_cmd, paste_cmd = utils.get_clip_cmd()
 
 local M = {}
 
-local function paste_img_to(dist)
-  os.execute(string.format(paste_cmd, dist))
+local function paste_img_to(dest)
+  os.execute(string.format(paste_cmd, dest))
 end
 
 function M.paste_img()

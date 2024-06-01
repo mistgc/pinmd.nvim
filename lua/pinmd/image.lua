@@ -14,14 +14,18 @@ Image.__index = Image
 ---@return string
 local function generate_link_txt(image)
   local link = ""
+  local path_cur_buf = vim.api.nvim_buf_get_name(0)
   local link_format = config.get_link_format()
 
-  if link_format == "absolute_path_in_vault" then
-    if config.have_set_specified_folder_in_vault() then
+  if config.have_set_specified_folder_in_vault() then
+    if link_format == "absolute_path_in_vault" then
       link = config.get_attachment_folder_path() .. utils.get_separator() .. image.name
     else
-      link = image.name
+      local path_cur_buf = vim.fs.normalize(vim.api.nvim_buf_get_name(0))
+      link = utils.generate_relative_path(path_cur_buf, image.path)
     end
+  else
+    link = image.name
   end
 
   return link

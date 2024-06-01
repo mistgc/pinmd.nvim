@@ -133,4 +133,49 @@ function M.error(msg)
   vim.notify(msg, vim.log.levels.ERROR, { title = "Pinmd" })
 end
 
+-- base_path:     /usr/local/bin/
+-- absolute_path: /usr/local/share/fonts/a.ttf
+-- relative_path: ../share/fonts/a.ttf
+--
+---@return string
+function M.generate_relative_path(base_path, absolute_path)
+  local common_prefix = 0
+  local relative_path = ""
+  local backtracks = 0
+
+  for i = 1, #absolute_path do
+      if absolute_path:sub(i, i) == base_path:sub(i, i) then
+          common_prefix = common_prefix + 1
+      else
+          break
+      end
+  end
+
+  for i = common_prefix + 1, #base_path do
+      if base_path:sub(i, i) == "/" then
+          backtracks = backtracks + 1
+      end
+  end
+
+  if backtracks > 0 then
+      for i = 1, backtracks do
+          relative_path = relative_path .. ".." .. "/"
+      end
+  else
+      relative_path = "." .. "/"
+  end
+
+  for i = common_prefix, 0, -1 do
+      if base_path:sub(i, i) == "/" then
+          common_prefix = i
+          break
+      end
+  end
+
+  relative_path = relative_path .. absolute_path:sub(common_prefix + 1)
+  relative_path = vim.fs.normalize(relative_path)
+
+  return relative_path
+end
+
 return M

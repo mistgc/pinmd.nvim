@@ -6,7 +6,7 @@ M.namespace = vim.api.nvim_create_namespace("Pinmd")
 ---@class Options
 M.default_opts = {
   files = {
-    link_format = "absolute_path_in_vault",
+    link_format = "absolute_path_in_vault", -- "absolute_path_in_vault", "relative_path_in_vault"
 
     location_for_new_attachments = "vault_folder", -- "vault_folder", "specified_folder_in_vault"
     attachment_folder_path = "assets/img/",
